@@ -154,7 +154,7 @@ public class EkimemoListener implements Listener {
 
         player.closeInventory();
     }
-
+//すぐ消す
     private void giveExp(Player player, int amount) {
         player.sendMessage("§d§l[EXP] §fパートナーが §b" + amount + " exp §f獲得しました。");
     }
