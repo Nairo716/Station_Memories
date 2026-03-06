@@ -1,0 +1,11 @@
+name: Station_Memories
+main: org.example.Main
+version: 1.0
+api-version: 1.7.10
+author: YourName
+description: 駅メモ風のチェックインシステムプラグイン
+
+commands:
+  ekimemo:
+    description: 駅メモのメインコマンドです。
+    aliases: [em, memo] # 省略形として /em や /memo でも動くようになります
