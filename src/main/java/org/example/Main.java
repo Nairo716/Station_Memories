@@ -17,14 +17,16 @@ public class Main extends JavaPlugin {
         this.dataManager.setup();
 
         getServer().getPluginManager().registerEvents(new EkimemoListener(dataManager), this);
-
+        EkimemoCommand cmdExecutor = new EkimemoCommand(this, dataManager);
         // コマンドの登録
         if (getCommand("ekimemo") != null) {
             getCommand("ekimemo").setExecutor(new EkimemoCommand(this, dataManager));
+            getCommand("gacha").setExecutor(cmdExecutor);
         } else {
 
             getLogger().severe("plugin.ymlにekimemoコマンドが登録されていません！");
         }
+
 
         getLogger().info("駅メモプラグインが導入されたよ！ !");
     }

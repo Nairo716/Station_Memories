@@ -268,4 +268,27 @@ public class DataManager {
 
         savePlayers();
     }
+    /**
+     * ガチャチケットを消費する
+     */
+    public boolean consumeGachaTicket(UUID uuid) {
+        int current = getGachaTickets(uuid);
+        if (current > 0) {
+            addGachaTickets(uuid, -1);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 新しいキャラを所持リストに保存する
+     */
+    public void addOwnedDenko(UUID uuid, String denkoName) {
+        List<String> owned = getOwnedDenkos(uuid);
+        if (!owned.contains(denkoName)) {
+            owned.add(denkoName);
+            playerConfig.set(uuid.toString() + ".owned_denkos", owned);
+            savePlayers();
+        }
+    }
 }

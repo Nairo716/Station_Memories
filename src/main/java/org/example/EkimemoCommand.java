@@ -23,6 +23,14 @@ public class EkimemoCommand implements CommandExecutor {
             return true;
         }
         Player player = (Player) sender;
+        if (label.equalsIgnoreCase("gacha")) {
+            if (!(sender instanceof Player)) {
+                sender.sendMessage("§cプレイヤーのみ実行可能です。");
+                return true;
+            }
+            EkimemoGUI.openGachaMenu((Player) sender, dataManager);
+            return true;
+        }
 
         if (args.length == 0) {
             EkimemoGUI.openMainMenu(player, dataManager);

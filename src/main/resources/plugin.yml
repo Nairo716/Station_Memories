@@ -9,3 +9,5 @@ commands:
   ekimemo:
     description: 駅メモのメインコマンドです。
     aliases: [em, memo] # 省略形として /em や /memo でも動くようになります
+  gacha:
+    description: ガチャ画面を開きます

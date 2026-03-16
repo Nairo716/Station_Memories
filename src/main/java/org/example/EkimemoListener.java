@@ -24,7 +24,8 @@ public class EkimemoListener implements Listener {
 
         // 判定対象のGUI名リストに「§1キャラ一覧」を追加
         if (!title.equals("ekimemo") && !title.equals("§1路線一覧") &&
-                !title.startsWith("§1駅一覧:") && !title.equals("§1キャラ一覧")) {
+                !title.startsWith("§1駅一覧:") && !title.equals("§1キャラ一覧") &&
+                !title.equals("§1ガチャ（スカウト）")) {
             return;
         }
 
@@ -65,6 +66,38 @@ public class EkimemoListener implements Listener {
             // 演出: 音を鳴らしてGUIを再描画（[編成中]表示を更新するため）
             player.playSound(player.getLocation(), org.bukkit.Sound.ORB_PICKUP, 1, 1);
             EkimemoGUI.openDenkoList(player, dataManager);
+        }
+        // --- ガチャ画面の判定 ---
+        if (title.equals("§1ガチャ（スカウト）")) {
+            if (displayName.contains("ガチャを回す")) {
+                // 1. チケットの所持確認
+                int tickets = dataManager.getGachaTickets(player.getUniqueId());
+                if (tickets <= 0) {
+                    player.sendMessage("§cガチャチケットが足りません！チェックインして集めましょう。");
+                    player.playSound(player.getLocation(), org.bukkit.Sound.VILLAGER_NO, 1, 1);
+                    return;
+                }
+
+                // 2. チケットを1枚消費
+                dataManager.addGachaTickets(player.getUniqueId(), -1);
+
+                // 3. 抽選ロジック (DenkoTypeからランダムに選ぶ)
+                DenkoType[] types = DenkoType.values();
+                DenkoType result = types[new java.util.Random().nextInt(types.length)];
+
+                // 4. キャラを所持リストに追加 (重複チェックはDataManager側で行う)
+                dataManager.addOwnedDenko(player.getUniqueId(), result.getName());
+
+                // 5. 演出
+                player.sendMessage("§e§l[ガチャ] §fガチャを回しました！");
+                player.sendMessage("§a§l[当選!] §f「§b" + result.getName() + "§f」を仲間にしました！");
+
+                // 1.7.10の音 (レベルアップ音)
+                player.playSound(player.getLocation(), org.bukkit.Sound.LEVEL_UP, 1, 1.2f);
+
+                // 6. GUIを再描画（残り枚数を更新するため）
+                EkimemoGUI.openGachaMenu(player, dataManager);
+            }
         }
     }
     private void handleCheckin(Player player) {
@@ -154,7 +187,7 @@ public class EkimemoListener implements Listener {
 
         player.closeInventory();
     }
-//すぐ消す
+
     private void giveExp(Player player, int amount) {
         player.sendMessage("§d§l[EXP] §fパートナーが §b" + amount + " exp §f獲得しました。");
     }

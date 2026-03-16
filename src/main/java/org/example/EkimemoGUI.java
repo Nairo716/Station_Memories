@@ -166,4 +166,5 @@ public class EkimemoGUI {
         gui.setItem(4, gachaItem);
         player.openInventory(gui);
     }
+
 }
