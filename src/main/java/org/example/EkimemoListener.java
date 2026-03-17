@@ -105,7 +105,7 @@ public class EkimemoListener implements Listener {
             }
         }
     }
-    private void handleCheckin(Player player) {
+    public void handleCheckin(Player player) {
         org.bukkit.Location playerLoc = player.getLocation();
         String nearestStation = null;
         double minDistance = Double.MAX_VALUE;

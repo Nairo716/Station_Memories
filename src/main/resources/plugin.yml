@@ -13,3 +13,5 @@ commands:
     description: ガチャ画面を開きます
   tablet:
     description: タブレットを付与します
+  checkin:
+    description: 最寄り駅にチェックインします。

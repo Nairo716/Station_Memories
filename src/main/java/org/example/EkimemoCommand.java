@@ -9,10 +9,11 @@ import org.bukkit.inventory.ItemStack;
 public class EkimemoCommand implements CommandExecutor {
     private final Main plugin;
     private final DataManager dataManager;
-
-    public EkimemoCommand(Main plugin, DataManager dataManager) {
+    private final EkimemoListener listener;
+    public EkimemoCommand(Main plugin, DataManager dataManager, EkimemoListener listener) {
         this.plugin = plugin;
         this.dataManager = dataManager;
+        this.listener = listener;
     }
 
     @Override
@@ -24,6 +25,11 @@ public class EkimemoCommand implements CommandExecutor {
             return true;
         }
         Player player = (Player) sender;
+        if (cmd.getName().equalsIgnoreCase("checkin")) {
+            plugin.getListener().handleCheckin(player);
+            return true;
+        }
+
         if (label.equalsIgnoreCase("tablet")) {
             if (!(sender instanceof Player)) {
                 sender.sendMessage("このコマンドはプレイヤーのみ実行可能です。");
