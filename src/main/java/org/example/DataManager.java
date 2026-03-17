@@ -269,18 +269,6 @@ public class DataManager {
         savePlayers();
     }
     /**
-     * ガチャチケットを消費する
-     */
-    public boolean consumeGachaTicket(UUID uuid) {
-        int current = getGachaTickets(uuid);
-        if (current > 0) {
-            addGachaTickets(uuid, -1);
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * 新しいキャラを所持リストに保存する
      */
     public void addOwnedDenko(UUID uuid, String denkoName) {
@@ -290,5 +278,98 @@ public class DataManager {
             playerConfig.set(uuid.toString() + ".owned_denkos", owned);
             savePlayers();
         }
+    }
+    /**
+     * 指定したでんこの現在のレベルを取得します。
+     * データがない場合はレベル1を返します。
+     */
+    public int getDenkoLevel(UUID uuid, String denkoName) {
+        // プレイヤーのデータファイル(config)から取得。デフォルトは1。
+        return playerConfig.getInt(uuid.toString() + ".denkos." + denkoName + ".level", 1);
+    }
+
+    /**
+     * 指定したでんこの現在の経験値を取得します。
+     */
+    public int getDenkoExp(UUID uuid, String denkoName) {
+        return playerConfig.getInt(uuid.toString() + ".denkos." + denkoName + ".exp", 0);
+    }
+
+    /**
+     * 経験値を加算し、必要値を超えたらレベルアップさせます。
+     */
+    public void addDenkoExp(UUID uuid, String denkoName, int amount) {
+        int currentLv = getDenkoLevel(uuid, denkoName);
+        int currentExp = getDenkoExp(uuid, denkoName) + amount;
+
+        // レベルアップ判定 (最大レベル50)
+        // 次のレベルに必要な経験値 = レベル * 100 (例: Lv.1なら100必要)
+        while (currentLv < 50 && currentExp >= (currentLv * 100)) {
+            currentExp -= (currentLv * 100);
+            currentLv++;
+
+            // プレイヤーに通知
+            Player player = Bukkit.getPlayer(uuid);
+            if (player != null) {
+                player.sendMessage("§b§l[LEVEL UP!] §e" + denkoName + " §fのレベルが §e" + currentLv + " §fになりました！");
+                player.playSound(player.getLocation(), org.bukkit.Sound.LEVEL_UP, 1, 1);
+            }
+        }
+
+        // データの保存
+        String path = uuid.toString() + ".denkos." + denkoName;
+        playerConfig.set(path + ".level", currentLv);
+        playerConfig.set(path + ".exp", currentExp);
+        savePlayers();
+    }
+    /** 駅の現在の残りHPを取得（なければ守備でんこの最大HPを返す） */
+    public int getStationCurrentHp(String stationName, String ownerUuid) {
+        // ★修正: playerConfig ではなく config (lines.yml) から取得する
+        String path = "station_data." + stationName + ".current_hp";
+
+        // データが存在し、かつ -1 (リセット) ではない場合にその値を返す
+        if (config.contains(path)) {
+            int hp = config.getInt(path);
+            if (hp > -1) {
+                return hp;
+            }
+        }
+
+        // --- データがない、または撃破直後の場合は最大HPを計算して返す ---
+        String active = getActiveDenko(UUID.fromString(ownerUuid));
+        // 万が一オーナーのでんこデータが見つからない場合の安全策
+        if (active == null || active.equals("なし")) return 100;
+
+        DenkoType type = DenkoType.getByName(active);
+        if (type == null) return 100;
+
+        int lv = getDenkoLevel(UUID.fromString(ownerUuid), active);
+        return type.getMaxHp(lv);
+    }
+
+    /** 駅の残りHPを設定 */
+    public void setStationCurrentHp(String stationName, int hp) {
+        // ここは config (lines.yml) に保存しているので OK
+        config.set("station_data." + stationName + ".current_hp", hp);
+        saveLines();
+    }
+    /**
+     * 指定したプレイヤーが持つすべての駅のリンクを解除する
+     */
+    public void clearAllStationLinks(UUID ownerUuid) {
+        String uuidStr = ownerUuid.toString();
+        // 全路線の全駅をチェック
+        for (String lineName : getLineNames()) {
+            for (String stationName : getStations(lineName)) {
+                String currentOwner = getStationOwner(stationName);
+                if (uuidStr.equals(currentOwner)) {
+                    // オーナーを解除
+                    config.set("station_data." + stationName + ".owner", null);
+                    // HPをリセット
+                    config.set("station_data." + stationName + ".current_hp", -1);
+                }
+            }
+        }
+        saveLines();
     }
 }
