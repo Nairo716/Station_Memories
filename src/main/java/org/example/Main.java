@@ -22,6 +22,7 @@ public class Main extends JavaPlugin {
         if (getCommand("ekimemo") != null) {
             getCommand("ekimemo").setExecutor(new EkimemoCommand(this, dataManager));
             getCommand("gacha").setExecutor(cmdExecutor);
+            getCommand("tablet").setExecutor(cmdExecutor);
         } else {
 
             getLogger().severe("plugin.ymlにekimemoコマンドが登録されていません！");

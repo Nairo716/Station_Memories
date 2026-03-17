@@ -281,4 +281,26 @@ public class EkimemoListener implements Listener {
             player.playSound(player.getLocation(), org.bukkit.Sound.IRONGOLEM_HIT, 1, 1);
         }
     }
+    @EventHandler
+    public void onPlayerInteract(org.bukkit.event.player.PlayerInteractEvent event) {
+        Player player = event.getPlayer();
+        ItemStack item = player.getItemInHand();
+
+        // アイテムを持っていない場合は無視
+        if (item == null || item.getTypeId() != 265) return;
+
+        // 右クリック（空気クリックまたはブロッククリック）の判定
+        if (event.getAction() == org.bukkit.event.block.Action.RIGHT_CLICK_AIR ||
+                event.getAction() == org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK) {
+
+            // --- ここで実行 ---
+            // 1. 直接メニューを開く場合（おすすめ）
+            EkimemoGUI.openMainMenu(player, dataManager);
+
+            // 2. もしコマンドとして実行させたい場合（既存の権限等を通したい時）
+            // player.performCommand("ekimemo");
+            // 1.7.10特有の「ブロックを置いてしまう」などの挙動を防ぐ
+            event.setCancelled(true);
+        }
+    }
 }

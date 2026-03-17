@@ -4,6 +4,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 public class EkimemoCommand implements CommandExecutor {
     private final Main plugin;
@@ -23,6 +24,21 @@ public class EkimemoCommand implements CommandExecutor {
             return true;
         }
         Player player = (Player) sender;
+        if (label.equalsIgnoreCase("tablet")) {
+            if (!(sender instanceof Player)) {
+                sender.sendMessage("このコマンドはプレイヤーのみ実行可能です。");
+                return true;
+            }
+
+            ItemStack tablet = new ItemStack(265, 1, (short) 0);
+            org.bukkit.inventory.meta.ItemMeta meta = tablet.getItemMeta();
+            meta.setDisplayName("§b駅メモタブレット");
+            tablet.setItemMeta(meta);
+
+            player.getInventory().addItem(tablet);
+            player.sendMessage("§a駅メモタブレットを入手しました。");
+            return true;
+        }
         if (label.equalsIgnoreCase("gacha")) {
             if (!(sender instanceof Player)) {
                 sender.sendMessage("§cプレイヤーのみ実行可能です。");
@@ -36,6 +52,7 @@ public class EkimemoCommand implements CommandExecutor {
             EkimemoGUI.openMainMenu(player, dataManager);
             return true;
         }
+
         if (args[0].equalsIgnoreCase("setting")) {
             if (!player.isOp()) {
                 player.sendMessage("§c権限（OP）がありません。");
@@ -102,4 +119,5 @@ public class EkimemoCommand implements CommandExecutor {
         player.sendMessage("§c不明なコマンドです。");
         return true;
     }
+
 }
